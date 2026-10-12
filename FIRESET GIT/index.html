@@ -49,15 +49,17 @@
     .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
     .card{background:var(--card);padding:14px;border-radius:12px;border:1px solid rgba(255,255,255,0.03)}
     .card h4{margin:0 0 8px}
-    .testimonials{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 
     footer{margin-top:30px;text-align:center;color:var(--muted);font-size:13px}
 
-    @media(max-width:920px){.hero{grid-template-columns:1fr;}.grid{grid-template-columns:1fr 1fr}.testimonials{grid-template-columns:1fr}}
+    @media(max-width:920px){.hero{grid-template-columns:1fr;}.grid{grid-template-columns:1fr 1fr}}
     @media(max-width:560px){.grid{grid-template-columns:1fr}.brand h1{font-size:14px}.hero h2{font-size:26px}}
 
     .muted{color:var(--muted)}
     a.ghost{color:var(--muted);text-decoration:none}
+
+    /* translation widget placement */
+    #google_translate_element{position:fixed;right:16px;top:84px;z-index:9999;display:none}
   </style>
 </head>
 <body>
@@ -72,6 +74,7 @@
       </div>
       <div class="nav-actions">
         <a class="btn btn-ghost" href="#how">Как это работает</a>
+        <button class="btn btn-ghost" id="toggle-translate">Перевести</button>
         <button class="btn btn-primary" id="open-picker">Выбрать устройство</button>
       </div>
     </nav>
@@ -85,7 +88,9 @@
 
           <div class="hero-ctas">
             <button class="btn btn-primary" id="cta-get">Подобрать настройки</button>
-            <a class="btn btn-ghost" href="https://t.me/fireset_official" target="_blank" rel="noopener">Присоединиться в Telegram</a>
+            <a class="btn btn-ghost" href="/FIRESET%20GIT/instruction.html">Инструкция</a>
+            <a class="btn btn-ghost" href="/FIRESET%20GIT/help.html">Помощь</a>
+            <a class="btn btn-ghost" href="https://t.me/fireset_official" target="_blank" rel="noopener">Telegram</a>
           </div>
 
           <div class="stats" aria-hidden="true">
@@ -154,23 +159,7 @@
         </div>
       </section>
 
-      <section class="section" aria-labelledby="testimonials-title">
-        <div style="display:flex;align-items:center;justify-content:space-between">
-          <h3 id="testimonials-title">Отзывы игроков</h3>
-          <a class="ghost" href="#">Все отзывы →</a>
-        </div>
-
-        <div class="testimonials" style="margin-top:12px">
-          <div class="card">
-            <strong>Артём, 18</strong>
-            <p class="muted">«Подобрал настройки для Redmi — стал стабильно 90+ FPS в рангах. Очень довольный.»</p>
-          </div>
-          <div class="card">
-            <strong>Мария, 21</strong>
-            <p class="muted">«Просто и быстро — сразу видно разницу в прицеливании. Рекомендую!»</p>
-          </div>
-        </div>
-      </section>
+      <!-- Reviews removed as requested -->
 
       <section class="section" style="margin-top:18px">
         <div style="display:flex;gap:12px;align-items:center;justify-content:center">
@@ -185,6 +174,8 @@
       <div>© FireSet — Подбор настроек Free Fire • <span class="muted">неофициальный проект</span></div>
     </footer>
   </div>
+
+  <div id="google_translate_element" aria-hidden="true"></div>
 
   <script>
     const devices = {
@@ -244,7 +235,8 @@
       const sel = document.getElementById('device-select');
       if(!sel.value) return alert('Пожалуйста, выберите модель.');
       showSettingsFor(sel.value);
-      document.getElementById('testimonials-title').scrollIntoView({behavior:'smooth'});
+      // smooth confirmation scroll
+      document.getElementById('how').scrollIntoView({behavior:'smooth'});
     });
 
     document.getElementById('cta-get').addEventListener('click', ()=>{
@@ -255,6 +247,28 @@
     });
     document.getElementById('cta-bottom').addEventListener('click', ()=>{
       document.getElementById('device-select').focus();
+    });
+
+    // Google Translate toggle — loads widget on demand (no external load until user clicks)
+    let gtLoaded = false;
+    function loadGoogleTranslate(){
+      if(gtLoaded) return showTranslate();
+      const script = document.createElement('script');
+      script.src = 'https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
+      document.head.appendChild(script);
+      window.googleTranslateElementInit = function(){
+        new window.google.translate.TranslateElement({pageLanguage: 'ru', layout: window.google.translate.TranslateElement.InlineLayout.SIMPLE}, 'google_translate_element');
+        gtLoaded = true;
+        showTranslate();
+      };
+    }
+    function showTranslate(){
+      const el = document.getElementById('google_translate_element');
+      if(!el) return;
+      el.style.display = el.style.display === 'none' ? 'block' : 'none';
+    }
+    document.getElementById('toggle-translate').addEventListener('click', ()=>{
+      loadGoogleTranslate();
     });
   </script>
 </body>
